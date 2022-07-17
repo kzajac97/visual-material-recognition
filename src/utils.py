@@ -1,6 +1,8 @@
-from typing import Sequence
+from typing import Any, List, Sequence
 
 import numpy as np
+import pandas as pd
+from skimage import io
 
 
 def sliding_window_sum(a: np.array, window_size: int) -> np.array:
@@ -32,3 +34,13 @@ def verify_shape(y_true: np.array, y_pred: np.array) -> None:
     """Verifies if arrays have correct shape for metric computation"""
     if y_true.shape != y_pred.shape:
         raise TypeError(f"Array shapes are different must match! {y_true.shape} != {y_pred.shape}")
+
+
+def sample_one(column: pd.Series) -> Any:
+    """Samples one element from pandas Series"""
+    return column.sample(1).tolist()[0]
+
+
+def load_image_batch(paths: List[str]) -> np.array:
+    """Loads images from paths into a stacked array"""
+    return np.asarray([io.imread(path) for path in paths])
