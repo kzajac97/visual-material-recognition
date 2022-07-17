@@ -3,7 +3,9 @@ from abc import ABC, abstractmethod
 from numpy.typing import NDArray
 from skimage.color import rgb2gray
 from skimage.feature import canny
+from skimage.filters import rank
 from skimage.filters.thresholding import threshold_otsu
+from skimage.morphology import disk
 
 
 class ImageTransformerBase(ABC):
@@ -35,9 +37,6 @@ class ColorToGreyTransformer(ImageTransformerBase):
 class OtsuThresholdTransformer(ImageTransformerBase):
     """Transformer using Otsu threshold method to convert image to binary"""
 
-    def __init__(self):
-        super(OtsuThresholdTransformer, self).__init__()
-
     @staticmethod
     def _validate_input_image(x: NDArray) -> None:
         """Checks shape of the input image, must be 2D"""
@@ -48,7 +47,32 @@ class OtsuThresholdTransformer(ImageTransformerBase):
         """Converts image to binary using otsu threshold"""
         self._validate_input_image(x)
         threshold = threshold_otsu(x)
-        return x > threshold
+        return (x >= threshold).astype(int)
+
+
+class LocalOtsuThresholdTransformer(ImageTransformerBase):
+    """Transformer using Otsu threshold method to convert image to binary"""
+
+    def __init__(self, radius: int):
+        """
+        :param radius: Radius of local neighbourhood to use for local thresholding in pixels
+        """
+        self.radius = radius
+        super(LocalOtsuThresholdTransformer, self).__init__()
+
+    @staticmethod
+    def _validate_input_image(x: NDArray) -> None:
+        """Checks shape of the input image, must be 2D"""
+        if x.ndim != 2:
+            raise ValueError(f"Image must have rank 2! {x.ndim} != 2")
+
+    def transform(self, x: NDArray) -> NDArray:
+        """Converts image to binary using local otsu threshold"""
+        self._validate_input_image(x)
+
+        footprint = disk(self.radius)
+        local_thresholds = rank.otsu(x, footprint)
+        return (x >= local_thresholds).astype(int)
 
 
 class CannyTransformer(ImageTransformerBase):
