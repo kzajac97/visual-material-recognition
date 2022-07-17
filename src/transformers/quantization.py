@@ -22,19 +22,12 @@ class BinaryQuantizationTransformer(ImageTransformerBase):
         self.normalize = normalize
 
     @staticmethod
-    def _validate_input_image(x: NDArray) -> None:
-        """Checks shape of the input image, must be 2D"""
-        if x.ndim != 2:
-            raise ValueError(f"Image must have rank 2! {x.ndim} != 2")
-
-    @staticmethod
     def _normalize_pixel_count(value: float, image_size: int) -> float:
         """Normalizes pixel count with respect to given image"""
         return value / image_size
 
     def transform(self, x: NDArray) -> NDArray:
         """Computes the number of dark and bright pixels in binary image"""
-        self._validate_input_image(x)
         n_bright = np.count_nonzero(x)
         n_dark = x.size - n_bright
 
@@ -55,21 +48,12 @@ class FractalDimensionQuantizationTransformer(ImageTransformerBase):
     """
 
     @staticmethod
-    def _validate_input_image(x: NDArray) -> None:
-        """Checks shape of the input image, must be 2D"""
-        if x.ndim != 2:
-            raise ValueError(f"Image must have rank 2! {x.ndim} != 2")
-
-        if len(np.unique(x)) != 2:
-            raise ValueError(f"Image must be binary! Found {len(np.unique(x))} values!")
-
-    @staticmethod
     def box_count(x: NDArray, size: int) -> int:
         """Counts th amount of boxes with given size enclosing the shape"""
         enclosed = np.add.reduceat(x, np.arange(0, x.shape[0], size), axis=0)
         enclosed = np.add.reduceat(enclosed, np.arange(0, x.shape[1], size), axis=1)
 
-        return len(np.where((enclosed > 0) & (enclosed < size ** 2))[0])
+        return len(np.where((enclosed > 0) & (enclosed < size**2))[0])
 
     @staticmethod
     def shorter_side_length(x: NDArray) -> int:
@@ -86,7 +70,7 @@ class FractalDimensionQuantizationTransformer(ImageTransformerBase):
         >>> self.max_power(45)
         ... 32
         """
-        return int(2**np.floor(np.log(size) / np.log(2)))
+        return int(2 ** np.floor(np.log(size) / np.log(2)))
 
     @staticmethod
     def exponent(n: int) -> int:
@@ -127,8 +111,6 @@ class FractalDimensionQuantizationTransformer(ImageTransformerBase):
 
     def transform(self, x: NDArray) -> float:
         """Runs fractal dimension quantifier on binary image"""
-        self._validate_input_image(x)
-
         length = self.shorter_side_length(x)
         power = self.max_power(length)
         exponent = self.exponent(power)
