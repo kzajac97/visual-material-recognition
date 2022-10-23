@@ -5,6 +5,7 @@ from sklearn.base import BaseEstimator, RegressorMixin
 
 class MeanBaseline(RegressorMixin, BaseEstimator):
     """Baseline estimator always returning mean value of training target"""
+
     def __init__(self):
         super().__init__()
 
@@ -26,6 +27,7 @@ class MeanBaseline(RegressorMixin, BaseEstimator):
 
 class MedianBaseline(RegressorMixin, BaseEstimator):
     """Baseline estimator always returning mean value of training target"""
+
     def __init__(self):
         super().__init__()
 
