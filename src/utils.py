@@ -1,4 +1,5 @@
-from typing import Any, List, Sequence
+from functools import wraps
+from typing import Any, List, Sequence, Callable
 
 import numpy as np
 import pandas as pd
@@ -44,3 +45,12 @@ def sample_one(column: pd.Series) -> Any:
 def load_image_batch(paths: List[str]) -> np.array:
     """Loads images from paths into a stacked array"""
     return np.asarray([io.imread(path) for path in paths])
+
+
+def to_batch_function(func: Callable) -> Callable:
+    """Converts any numpy function to work with batches"""
+    @wraps(func)
+    def wrapper(batch: np.array) -> np.array:
+        return np.asarray([func(sample) for sample in batch])
+
+    return wrapper
