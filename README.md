@@ -61,4 +61,5 @@ pip install -r requirements.txt
 
 Experiment related to ViT model containing different set-up, it is not advised to run this on machine without GPU, since
 even inference can take significant amount of time. Requirements for this experiment are given in `requirements-vit.txt` file,
-which are added on top of original requirements. 
+which are added on top of original requirements. This is done to reduce the installation overhead for simple experiments,
+and allow running only the ViT experiment using Cloud or Google Colab.
